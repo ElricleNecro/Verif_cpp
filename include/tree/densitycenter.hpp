@@ -52,6 +52,8 @@ namespace Physics {
 			void InitVois(void);
 
 			unsigned int NbVois;
+			unsigned int EndVois;
+			unsigned int BegInsert;
 			Classer *vois;
 	};
 } // namespace Physics
