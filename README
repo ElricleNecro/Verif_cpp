@@ -1,0 +1,6 @@
+Plug-ins
+########
+to compile the gadget reader:
+```
+g++ -std=c++11 -shared -fPIC -W -Wall  `pkg-config --cflags --libs iogadget` -I . -I ../../include plugins_gadget.cpp ../../src/plugins/exceptions.cpp -o /tmp/plugins.so
+```
