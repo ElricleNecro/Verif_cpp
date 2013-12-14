@@ -10,6 +10,7 @@ namespace Physics {
 			const int NbVois
 	) : Calculus(part, NbPart, NbMin, center, size), NbVois(NbVois), vois(NULL)
 	{
+		this->Allocate();
 		this->InitVois();
 
 		this->EndVois = this->NbVois - 1;
@@ -25,6 +26,7 @@ namespace Physics {
 			const int NbVois
 	) : Calculus(part, NbPart, NbMin, center, size), NbVois(NbVois), vois(NULL)
 	{
+		this->Allocate();
 		this->InitVois();
 
 		this->EndVois = this->NbVois - 1;
@@ -33,6 +35,7 @@ namespace Physics {
 
 	DensityCenter::DensityCenter(const Calculus &obj, const int NbVois) : Calculus(obj), NbVois(NbVois), vois(NULL)
 	{
+		this->Allocate();
 		this->InitVois();
 
 		this->EndVois = this->NbVois - 1;
@@ -53,17 +56,21 @@ namespace Physics {
 
 	DensityCenter::~DensityCenter(void)
 	{
-		delete[] this->vois;
+		if( this->vois != NULL )
+			delete[] this->vois;
 		this->vois = NULL;
 	}
 
-	void DensityCenter::InitVois(void)
+	void DensityCenter::Allocate(void)
 	{
 		if( this->vois != NULL )
 			delete[] this->vois;
 
 		this->vois   = new Classer[this->NbVois];
+	}
 
+	void DensityCenter::InitVois(void)
+	{
 		for(unsigned int i=0; i<this->NbVois; i++) {
 			this->vois[i].r  = this->actual->GetSize() * std::sqrt(3.);
 			this->vois[i].id = -1;
@@ -92,13 +99,18 @@ namespace Physics {
 
 	void DensityCenter::calc_vois(Tree::OctTree *root, io::types::ParticuleData* part)
 	{
-		double dmax = this->vois[this->EndVois].r * this->vois[this->EndVois].r,
-		       dr   = 0.;
+		unsigned int EndVois = this->EndVois;
+		int            NRoot = root->GetN();
+		double          dmax = this->vois[EndVois].r * this->vois[EndVois].r,
+		                  dr = 0.;
 
-		for(int i=0; i<root->GetN(); i++)
+		for(int i=0; i<NRoot; i++)
 		{
 			dr = part_dist(&root->GetPart()[i], part);
-			if( dr < dmax && part->Id != root->GetPart()[i].Id )
+			if(	dr < dmax                         &&
+				part->Id != root->GetPart()[i].Id &&
+				!this->In(&root->GetPart()[i])
+			)
 			{
 #ifdef DEBUG_CALCVOIS
 				if( this->In(&root->GetPart()[i]) )
@@ -110,12 +122,11 @@ namespace Physics {
 #endif
 
 				this->insert( Classer{
-						//std::sqrt(part_dist(&root->GetPart()[i], part)),
 						std::sqrt(dr),
 						root->GetPart()[i].Id
 					}
 				);
-				dmax = this->vois[this->EndVois].r * this->vois[this->EndVois].r; //part_dist(&root->GetPart()[i], part);
+				dmax = this->vois[EndVois].r * this->vois[EndVois].r;
 			}
 		}
 	}
@@ -130,6 +141,45 @@ namespace Physics {
 				this->search_neighbor(t1, part);
 		else
 			this->calc_vois(search, part);
+	}
+
+	void DensityCenter::search_neighbor_nonrecursive(Tree::OctTree *search, io::types::Particules part)
+	{
+		Tree::OctTree *t_loop = search->Down();
+
+		while ( t_loop != NULL )
+		{
+			if( this->cube_dist(t_loop, part) < this->vois[this->EndVois].r )
+			{
+				if( t_loop->Down() != NULL )
+				{
+					t_loop = t_loop->Down();
+					continue;
+				}
+				this->calc_vois(t_loop, part);
+			}
+
+			if( t_loop->Next() != NULL )
+			{
+				t_loop = t_loop->Next();
+				continue;
+			}
+			else
+			{
+				t_loop = t_loop->Up();
+				// Tant qu'il n'y a pas de frére et qu'il y a un parent, on remonte :
+				while( t_loop->Next() == NULL && t_loop->Up() != NULL )
+					t_loop = t_loop->Up();
+				// S'il y a un frére on le prend :
+				if( t_loop->Next() != NULL )
+				{
+					t_loop = t_loop->Next();
+					continue;
+				}
+				else
+					t_loop = NULL;
+			}
+		}
 	}
 
 	void DensityCenter::FindNeighbor(io::types::ParticuleData* part)
@@ -152,6 +202,49 @@ namespace Physics {
 		{
 			this->InitVois();
 			//this->FindNeighbor(&this->actual->GetPart()[i]);
+			//this->search_neighbor(this->actual, &this->actual->GetPart()[i]);
+			this->search_neighbor_nonrecursive(this->actual, &this->actual->GetPart()[i]);
+
+			rho_loc      = this->EndVois * this->actual->GetPart()[i].m / ( fact * this->vois[this->EndVois].r * this->vois[this->EndVois].r * this->vois[this->EndVois].r );//(*this)[-1].r * (*this)[-1].r * (*this)[-1].r );
+			rho_loc_tot += rho_loc;
+
+			for(int j = 0; j < 3; j++)
+			{
+				a.Pos[j] += this->actual->GetPart()[i].Pos[j] * rho_loc;
+				a.Vit[j] += this->actual->GetPart()[i].Vit[j] * rho_loc;
+			}
+		}
+
+		for(int j = 0; j < 3; j++)
+		{
+			a.Pos[j] /= rho_loc_tot;
+			a.Vit[j] /= rho_loc_tot;
+		}
+
+		return a;
+	}
+
+
+	io::types::ParticuleData DensityCenter::CalculAll_NewInit(void)
+	{
+		double rho_loc     = 0.,
+		       rho_loc_tot = 0.;
+		double fact = (4./3.) * M_PI;
+		int    NbPart = this->actual->GetN();
+		io::types::ParticuleData a;
+
+		for(int i=0; i<3; i++)
+			a.Pos[i] = a.Vit[i] = 0.;
+
+		for(int i = 0; i < NbPart; i++)
+		{
+			this->InitVois();
+			this->calc_vois(
+				this->actual->GetNodeOf(
+					&this->actual->GetPart()[i]
+				)->Up(),
+				&this->actual->GetPart()[i]
+			);
 			this->search_neighbor(this->actual, &this->actual->GetPart()[i]);
 
 			rho_loc      = this->EndVois * this->actual->GetPart()[i].m / ( fact * this->vois[this->EndVois].r * this->vois[this->EndVois].r * this->vois[this->EndVois].r );//(*this)[-1].r * (*this)[-1].r * (*this)[-1].r );

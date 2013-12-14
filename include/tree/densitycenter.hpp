@@ -30,6 +30,7 @@ namespace Physics {
 			void FindNeighbor(io::types::ParticuleData* part);
 			bool In(io::types::ParticuleData* part) const;
 			io::types::ParticuleData CalculAll(void);
+			io::types::ParticuleData CalculAll_NewInit(void);
 
 			//******
 			//Assesseurs :
@@ -47,9 +48,11 @@ namespace Physics {
 
 		private:
 			void search_neighbor(Tree::OctTree *node, io::types::ParticuleData* part);
+			void search_neighbor_nonrecursive(Tree::OctTree *search, io::types::Particules part);
 			void calc_vois(Tree::OctTree *node, io::types::ParticuleData* part);
 			void insert(Classer part);
 			void InitVois(void);
+			void Allocate(void);
 
 			unsigned int NbVois;
 			unsigned int EndVois;
