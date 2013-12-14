@@ -64,16 +64,22 @@ namespace Physics {
 
 	double Potential::exact(Tree::OctTree *root, io::types::ParticuleData *part)
 	{
+		int N = root->GetN();
 		double pot = 0.0, dist = 0.0;
 
-		for(int i=0; i<root->GetN(); i++)
+		//std::cout << "In exact!" << std::endl;
+
+		for(int i=0; i<N; i++)
 		{
 			if( root->GetPart()[i].Id != part->Id )
 			{
 				dist = 0.0;
 				for(int j=0; j<3; j++)
-					dist += ( root->GetPart()[i].Pos[j] - part->Pos[j] ) * ( root->GetPart()[i].Pos[j] - part->Pos[j] );
-				pot += this->G * root->GetPart()[i].m / std::sqrt( dist );
+					dist += ( root->GetPart()[i].Pos[j] - part->Pos[j] ) *
+						( root->GetPart()[i].Pos[j] - part->Pos[j] );
+				//std::cout << this->G << "\t" << part->m << "\t" << std::sqrt( dist ) << std::endl;
+				//pot += this->G * part->m / std::sqrt( dist );
+				pot += - this->G * root->GetPart()[i].m / std::sqrt( dist );
 			}
 		}
 
@@ -83,9 +89,13 @@ namespace Physics {
 	double Potential::approximate(Tree::OctTree *root, io::types::ParticuleData *part)
 	{
 		double dist = 0.0;
+
+		//std::cout << "In approximation!" << std::endl;
 		for(int i=0; i<3; i++)
 			dist += (root->GetMassCenter()[i] - part->Pos[i]) * (root->GetMassCenter()[i] - part->Pos[i]);
-		return root->GetTotalMass() * this->G / std::sqrt( dist );
+
+		//std::cout << std::sqrt( dist ) << "\t" << this->G << "\t" << root->GetTotalMass() <<  "\t" << root->GetMassCenter()[0] << "\t" << root->GetMassCenter()[1] << "\t" << root->GetMassCenter()[2] << std::endl;
+		return -root->GetTotalMass() * this->G / std::sqrt( dist ) ;
 	}
 
 	inline bool Potential::accept(Tree::OctTree *root, io::types::ParticuleData *part)
@@ -100,7 +110,7 @@ namespace Physics {
 		if( this->accept(root, part) && root->Down() != NULL )
 		{
 			double pot = 0.0;
-			for( auto t1 = root->Down(); t1 != NULL; t1 = t1->Next())
+			for( auto t1 = root->Down(); t1 != NULL; t1 = t1->Next() )
 				pot += this->calc_potentiel(t1, part);
 			return pot;
 		}
@@ -116,8 +126,11 @@ namespace Physics {
 		this->Ep = 0.0;
 		for(int i=0; i<this->actual->GetN(); i++)
 		{
-			this->actual->GetPart()[i].Pot = this->GetPotential(&this->actual->GetPart()[i]);
-			this->Ep += this->actual->GetPart()[i].Pot * this->actual->GetPart()[i].m;
+			this->actual->GetPart()[i].Pot   = this->GetPotential(
+								&this->actual->GetPart()[i]
+							);
+
+			this->Ep			+= this->actual->GetPart()[i].Pot * this->actual->GetPart()[i].m;
 		}
 		this->Ep *= 0.5;
 	}
