@@ -119,6 +119,14 @@ namespace cli {
 		parser->add_string_option("--reader", this->name)
 			->set_desc("Reader to use.");
 
+		this->norme  = 1.0;
+		parser->add_double_option("--normalisation", this->norme)
+			->set_desc("To which value normalise all histogram.");
+
+		this->nb_bin = 100;
+		parser->add_int_option("--nb-bin", this->nb_bin)
+			->set_desc("Number of bins to use.");
+
 		this->pos_conv = 1.0;
 		parser->add_double_option("--pos-conv", this->pos_conv)
 			->set_desc("Position units to convert data into.");

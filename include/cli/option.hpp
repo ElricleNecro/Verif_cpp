@@ -16,6 +16,7 @@ namespace cli {
 			int type;
 			int verbosity;
 			int leaf;
+			int nb_bin;
 
 			bool periodic;
 			bool print_exemple;
@@ -27,6 +28,7 @@ namespace cli {
 			double softening;
 			double pos_conv;
 			double vit_conv;
+			double norme;
 
 			std::string logfile;
 			std::vector<std::string> infile;
