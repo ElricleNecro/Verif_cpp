@@ -41,6 +41,26 @@ namespace Calc {
 	{
 	}
 
+	const char* Energie::GetName(void)
+	{
+		return "Energie";
+	}
+
+	double Energie::GetEc(void)
+	{
+		return this->Ec;
+	}
+
+	double Energie::GetEp(void)
+	{
+		return this->Ep;
+	}
+
+	double Energie::GetVirial(void)
+	{
+		return this->Vir;
+	}
+
 	void Energie::CalculAll(void)
 	{
 		this->Ep = 0.0;

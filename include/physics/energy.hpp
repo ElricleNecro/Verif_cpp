@@ -25,6 +25,12 @@ namespace Calc {
 			Energie(const Energie &obj);
 			~Energie(void);
 
+			const char* GetName(void);
+
+			double GetEc(void);
+			double GetEp(void);
+			double GetVirial(void);
+
 			void CalculAll(void);
 
 		private:
