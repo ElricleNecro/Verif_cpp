@@ -2,7 +2,6 @@
 #define VERIF_TYPES_H
 
 #include <memory>
-#include <cstdlib>
 #include <cstring>
 #include <stdexcept>
 
