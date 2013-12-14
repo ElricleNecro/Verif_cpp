@@ -15,6 +15,11 @@ namespace Stats {
 	{
 	}
 
+	const char* Density::GetName(void)
+	{
+		return "Density";
+	}
+
 	void Density::Calcul(void)
 	{
 		double r = 0;
