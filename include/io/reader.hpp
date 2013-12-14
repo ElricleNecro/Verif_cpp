@@ -15,6 +15,7 @@
 namespace io {
 	namespace reader {
 		typedef PlugReader* NewReader(const char *name);
+		typedef void FreeFunc(io::types::ParticuleData*);
 
 		class Reader {
 			public:
@@ -27,6 +28,7 @@ namespace io {
 				void Add(const std::string &file_name);
 				NewReader* GetInstance(const std::string& name, const std::string& func);
 				Tree::SwapFunc* GetSwap(const std::string& name, const std::string& func);
+				FreeFunc* GetFree(const std::string& name, const std::string& func);
 
 			private:
 				std::map<std::string, plugins::Plugins> plug;

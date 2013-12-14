@@ -36,6 +36,11 @@ namespace io {
 			return this->plug[name].GetFunction<io::reader::NewReader>(func.c_str());
 		}
 
+		FreeFunc* Reader::GetFree(const std::string& name, const std::string& func)
+		{
+			return this->plug[name].GetFunction<FreeFunc>(func.c_str());
+		}
+
 		Tree::SwapFunc* Reader::GetSwap(const std::string& name, const std::string& func)
 		{
 			return this->plug[name].GetFunction<Tree::SwapFunc>(func.c_str());
