@@ -7,7 +7,6 @@ Version GetAPIVersion(void)
 
 Gadget* New(const char *fname)
 {
-	std::cout << "Getting file '" << fname << "'." << std::endl;
 	return new Gadget(fname);
 }
 
@@ -17,7 +16,7 @@ Gadget::Gadget(const std::string &name) : io::reader::PlugReader(name), particul
 
 Gadget::~Gadget(void)
 {
-	//std::free(this->particules);
+	std::free(this->particules);
 }
 
 void Gadget::SetFromCLI(const cli::DemoOptions &opt)
@@ -27,7 +26,7 @@ void Gadget::SetFromCLI(const cli::DemoOptions &opt)
 
 void Gadget::Read(void)
 {
-	this->particules = Gadget_Read_format1(
+	this->particules = iogadget::Double_Gadget_Read_format1(
 			this->fname.c_str(),
 			&this->header,
 			this->numfile,
@@ -42,36 +41,23 @@ void Gadget::Read(void)
 
 int Gadget::NbPart(void)
 {
-	std::cout << "Settings Particle number!" << std::endl;
 	this->N = 0;
 	for(int i=0; i<6; i++)
 		this->N += this->header.npart[i];
 	return this->N;
 }
 
-//std::unique_ptr<io::types::ParticuleData[], void(*)(void*)> Gadget::GetParticules(void)
 io::types::ParticuleData* Gadget::GetParticules(void)
 {
 	return (io::types::ParticuleData*) this->particules;
-	//return std::unique_ptr<io::types::ParticuleData[], void(*)(void*)>(
-			//(io::types::ParticuleData*)this->particules,
-			//std::free
-	//);
 }
 
-void Swap(iogadget::Particule a, iogadget::Particule b)
+void Swap(iogadget::Particule_d a, iogadget::Particule_d b)
 {
-	iogadget::Swap(a, b);
+	iogadget::Double_Swap(a, b);
 }
 
-//void Swap(Particule *a, Particule *b)
-    //static void *(*ori_swap)(size_t) = NULL;
-    //if (!ori_swap) {
-        //if (!(ori_swap =
-            //(void *(*)(Particule,Particule))dlsym(RTLD_NEXT,"Swap"))) {
-            //perror("cannot fetch system malloc\n");
-            //exit(1);
-        //}
-    //}
-    //return ori_swap(a, b);
-//}
+void Free(io::types::ParticuleData *part)
+{
+	std::free(part);
+}
