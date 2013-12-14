@@ -16,6 +16,10 @@ namespace Stats {
 			Anisotropy(io::types::Particules part, const int NbPart, const double r_min, const double r_max, const int bin=300, const double r_norm=1.0);
 			virtual ~Anisotropy(void);
 
+			const char* GetName(void);
+
+			double GetAnisotropy(void);
+
 			void Calcul(void);
 
 			using Histogram::operator();

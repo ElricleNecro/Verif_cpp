@@ -16,6 +16,16 @@ namespace Stats {
 	{
 	}
 
+	const char* Anisotropy::GetName(void)
+	{
+		return "Anisotropy";
+	}
+
+	double Anisotropy::GetAnisotropy(void)
+	{
+		return this->Coeff;
+	}
+
 	void Anisotropy::Calcul(void)
 	{
 		double *vr    = NULL,
