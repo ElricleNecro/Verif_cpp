@@ -16,33 +16,84 @@ int comp(const void *a, const void *b);
 
 class Application {
 	public:
-		Application(int argc, char *argv[]) : logger(std::cout), reader(), opts(argc, argv), NbPart(-1), swap(NULL)
+		Application(
+			int argc,
+			char *argv[]
+		) : logger(std::cout),
+		    reader(),
+		    opts(argc, argv),
+		    NbPart(-1),
+		    swap(NULL)
 		{
-			std::cout << opts.infile[0] << std::endl;
-			std::cout << opts.G << " " << opts.opening << opts.pos_conv << " " << opts.vit_conv << std::endl;
-			std::cout << opts.outfile << std::endl;
-
 			this->AddReader(opts.name);
 
-			io::reader::PlugReader *file = reader.GetInstance(opts.name, "New")(opts.infile[0].c_str());
-			//file.SetFromCLI()
-			file->Read();
-			this->particules = file->GetParticules();
-			this->NbPart     = file->NbPart();
+			this->file	 = reader.GetInstance(opts.name, "New")(opts.infile[0].c_str());
 			this->swap       = reader.GetSwap(opts.name, "Swap");
-			//this->free       = reader.GetFree(opts.name, "Free");
+			//this->file.SetFromCLI()
+			this->file->Read();
+			this->particules = this->file->GetParticules();
+			this->NbPart     = this->file->NbPart();
 
-			std::qsort(this->particules, this->NbPart, sizeof(io::types::ParticuleData), this->comp);
+			this->SortByR();
+			this->stats.push_back(
+					new Stats::Density(
+						this->particules,
+						this->NbPart,
+						Utils::rayon(
+							&this->particules[0]
+						),
+						Utils::rayon(
+							&this->particules[this->NbPart-1]
+						),
+						opts.nb_bin,
+						opts.norme
+					)
+			);
+			this->stats.push_back(
+					new Stats::DensityTemperature(
+						this->particules,
+						this->NbPart,
+						Utils::rayon(
+							&this->particules[0]
+						),
+						Utils::rayon(
+							&this->particules[this->NbPart-1]
+						),
+						opts.nb_bin,
+						opts.norme
+					)
+			);
+			this->stats.push_back(
+					new Stats::Anisotropy(
+						this->particules,
+						this->NbPart,
+						Utils::rayon(
+							&this->particules[0]
+						),
+						Utils::rayon(
+							&this->particules[this->NbPart-1]
+						),
+						opts.nb_bin,
+						opts.norme
+					)
+			);
 		}
 
 		~Application(void)
 		{
-			//this->free(this->particules);
+			for(size_t i = 0, size = this->stats.size(); i < size; i++)
+				delete this->stats[i];
+			delete file;
 		}
 
 		void AddReader(const std::string name)
 		{
 			reader.Add(name);
+		}
+
+		void SortByR(void)
+		{
+			std::qsort(this->particules, this->NbPart, sizeof(io::types::ParticuleData), this->comp);
 		}
 
 		static int comp(const void *a, const void *b)
@@ -62,7 +113,8 @@ class Application {
 
 		int main(void)
 		{
-			Physics::DensityCenter tree(
+			this->SortByR();
+			Physics::DensityCenter dc(
 					this->particules,
 					this->NbPart,
 					15,
@@ -71,13 +123,8 @@ class Application {
 					15
 			);
 			std::clock_t startTime = std::clock();
-			io::types::ParticuleData center = tree.CalculAll();
-			std::cout << double( std::clock() - startTime ) / (double)CLOCKS_PER_SEC<< " seconds." << std::endl;
-
-			std::cout << "Found: ";
-			for(int j=0; j<3; j++)
-				std::cout << center.Pos[j] << " ";
-			std::cout << std::endl;
+			io::types::ParticuleData center = dc.CalculAll_NewInit();
+			std::cout << "Density center calculation time: " << double( std::clock() - startTime ) / (double)CLOCKS_PER_SEC<< " seconds." << std::endl;
 
 			for(int i = 0; i < this->NbPart; i++)
 			{
@@ -88,17 +135,40 @@ class Application {
 				}
 			}
 
+			this->SortByR();
+			Calc::Energie pot(
+					this->particules,
+					this->NbPart,
+					15,
+					{0., 0., 0.},
+					2.*Utils::rayon(&this->particules[this->NbPart-1]),
+					0.5,
+					opts.G
+			);
+			startTime = std::clock();
+			pot.CalculAll();
+			std::cout << "Potential calculation time: " << double( std::clock() - startTime ) / (double)CLOCKS_PER_SEC<< " seconds." << std::endl;
+
+			std::cout << pot.GetVirial() << std::endl;
+			std::cout << pot.GetEc() << "\t" << pot.GetEp() << std::endl;
+
+			this->SortByR();
+			for(size_t i = 0, size = this->stats.size(); i < size; i++)
+				this->stats[i]->Calcul();
+
 			return 0;
 		}
 
 	private:
-		logging::Logger logger;
-		io::reader::Reader reader;
-		cli::DemoOptions opts;
-		io::types::Particules particules;
-		int NbPart;
-		Tree::SwapFunc* swap;
-		void (*free)(void*);
+		logging::Logger			 logger;
+		io::reader::Reader		 reader;
+		cli::DemoOptions		 opts;
+		io::types::Particules		 particules;
+		int				 NbPart;
+		Tree::SwapFunc			*swap;
+		io::reader::PlugReader		*file;
+		io::reader::FreeFunc		*free;
+		std::vector<Stats::Histogram*>	 stats;
 		//cfg::ConfigFile file;
 };
 
