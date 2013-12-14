@@ -143,6 +143,20 @@ namespace Tree {
 		return this->fils;
 	}
 
+	OctTree* OctTree::GetNodeOf(io::types::ParticuleData *part)
+	{
+		if( this->In(part) )
+		{
+			if( this->fils != NULL )
+				return this->fils->GetNodeOf(part);
+			else
+				return this;
+		}
+		else
+			if( this->frere != NULL )
+				return this->frere->GetNodeOf(part);
+	}
+
 	io::types::Particules OctTree::GetPart(void)
 	{
 		return io::types::Particules(this->first);
@@ -289,14 +303,12 @@ namespace Tree {
 		{
 			if( this->In(&this->first[i]) )
 			{
+				for(int j=0; j<3; j++)
+					this->cm[j] += this->first[i].Pos[j];
+				this->M_cm += this->first[i].m;
+
 				if( i != used )
 				{
-					for(int j=0; j<3; j++)
-						this->cm[j] += this->first[i].Pos[j];
-					this->M_cm += this->first[i].m;
-
-					//iogadget::Swap(&this->first[i], &this->first[used]);
-					//this->Swap(&this->first[i], &this->first[used]);
 					io::types::Swap(&this->first[i], &this->first[used]);
 				}
 				used++;

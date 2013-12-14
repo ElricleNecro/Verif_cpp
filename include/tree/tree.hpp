@@ -56,6 +56,7 @@ namespace Tree {
 			OctTree* Next(void);
 
 			bool In(io::types::ParticuleData *part);
+			OctTree* GetNodeOf(io::types::ParticuleData *part);
 
 			// Some setter and getter :
 			int    GetLevelMax(void) const;
