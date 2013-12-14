@@ -15,6 +15,8 @@ namespace Stats {
 			Histogram(io::types::Particules part, const int NbPart, const double r_min, const double r_max, const int bin=300, const double r_norm=1.0);
 			virtual ~Histogram(void);
 
+			virtual const char* GetName(void);
+
 			virtual int  GetNbBin(void) const;
 			virtual void SetNbBin(const int NbBin);
 
@@ -27,7 +29,7 @@ namespace Stats {
 			virtual double GetRNorm(void) const;
 			virtual void   SetRNorm(const double RNorm);
 
-			virtual void Calcul(void) = 0;
+			virtual void Calcul(void);
 
 			double operator() (const unsigned int a);
 			double operator[] (const unsigned int a) const;
@@ -38,8 +40,8 @@ namespace Stats {
 		protected:
 			io::types::Particules part;
 			int NbPart, NbBin;
-			double *r      = NULL,
-			       *bins   = NULL,
+			double *r     = NULL,
+			       *bins  = NULL,
 			       cte    = 1.0,
 			       r_norm = 1.0,
 			       r_max  = 1.0,

@@ -7,7 +7,7 @@ namespace Stats {
 			const double r_max,
 			const int bin,
 			const double r_norm
-			) : part(part), NbPart(NbPart), NbBin(bin), r_norm(r_norm), r_max(r_max), r_min(r_min)
+			) : part(part), NbPart(NbPart), NbBin(bin), r(NULL), bins(NULL), r_norm(r_norm), r_max(r_max), r_min(r_min)
 	{
 		this->CreateBins();
 
@@ -20,6 +20,11 @@ namespace Stats {
 	{
 		delete[] this->r;
 		delete[] this->bins;
+	}
+
+	const char* Histogram::GetName(void)
+	{
+		return "Histogram";
 	}
 
 	void Histogram::CreateBins(void)
@@ -85,6 +90,10 @@ namespace Stats {
 		this->r_norm = RNorm;
 		delete[] this->r;
 		this->CreateBins();
+	}
+
+	void Histogram::Calcul(void)
+	{
 	}
 
 	double Histogram::operator() (const unsigned int a)
