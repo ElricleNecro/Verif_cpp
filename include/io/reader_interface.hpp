@@ -16,7 +16,7 @@ namespace io {
 				PlugReader(const std::string &fname);
 				virtual ~PlugReader(void);
 
-				virtual void SetFromCLI(const cli::DemoOptions &opt);
+				virtual void SetFromCLI(const cli::Config &opt);
 
 				virtual void Read(void);
 				virtual types::Particules GetParticules(void);

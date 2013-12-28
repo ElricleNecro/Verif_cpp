@@ -10,7 +10,7 @@ namespace io {
 		{
 		}
 
-		void PlugReader::SetFromCLI(const cli::DemoOptions &opt)
+		void PlugReader::SetFromCLI(const cli::Config &opt)
 		{
 			(void)opt;
 		}

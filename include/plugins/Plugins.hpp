@@ -42,7 +42,7 @@ namespace plugins {
 				}
 
 				return reinterpret_cast<TSignature*>(functionAddress);
-			};
+			}
 
 		public:
 			Version version;
