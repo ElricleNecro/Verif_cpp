@@ -413,7 +413,7 @@ namespace cli {
 			std::exit(1);
 		}
 		return this->map_options->find(id)->second;
-	};
+	}
 
 	bool OptionParser::key_exists(std::string id) {
 		std::map<std::string, OptionParser::OptionParser::Option*>::const_iterator it = this->map_options->find(id);
@@ -422,7 +422,7 @@ namespace cli {
 		} else {
 			return false;
 		}
-	};
+	}
 
 	// affiche pour chaque clé sa clé de référence (i.e. l'id de l'option associée)
 	std::string OptionParser::map_options_to_s(void) {
@@ -442,7 +442,7 @@ namespace cli {
 			it++;
 		}
 		return buf.str();
-	};
+	}
 
 	void OptionParser::on_error(std::string handler) {
 		// std::vector<string> handlers = {"exit", "raise", "warn", "ignore"}; c++0x only
@@ -732,109 +732,5 @@ namespace cli {
 	// À REDÉFINIR PAR LA CLASSE FILLE
 	void OptionParser::post_parse_hook() {
 	}
-
-	//OptionParser* OptionParser::test(int argc, char *argv[]) {
-		//// ATTENTION : CETTE METHODE DE TEST N'EST PAS FORCÉMENT À JOUR
-		//// VOIR les fichier main.cpp et DemoOptions.hpp
-		//OptionParser::OptionParser* opts = new OptionParser::OptionParser(argc, argv);
-		//OptionParser::Option* opt;
-
-		//std::cerr << "méthode OptionParser::OptionParser#test() n'est plus à jour ";
-		//std::cerr << "A conserver pour les exemple, mais utiliser plutot";
-		//std::cerr << "L'exemple de  DemoOptions.hpp et le fichier main.cpp\n";
-		//// std::exit(1);
-
-		//opt = opts->add_doc("\nDébut des options spécifiques\n");
-
-		//int nbiter=10;
-		//opt = opts->add_int_option("--nbiter", nbiter)
-			//->set_desc("Nombre maximum d'itération")
-			//->add_alias("-i")
-			//->add_alias("--nb-max-iterations");
-		//// Ce qui suite est seule utilisation de opt pour le compilateir gcc
-		//std::cout << "id de la première option crée : " << opt->id;
-
-		//double mydouble = 3.14;
-		//opt = opts->add_double_option("--mydouble", mydouble)
-			//->set_desc("Un flottant de précision double")
-			//->add_alias("-r");
-
-		//std::string infile = "stdin";
-		//opt = opts->add_string_option("--infile", infile)
-			//->set_desc("Fichier d'entrée")
-			//->add_alias("-f");
-
-		//// TODO : implémenter l'option --color et les switch d'abrévations
-		//std::string color = "blue";
-		//opt = opts->add_string_option("--color", color)
-			//->set_desc("Couleurs de fond possibles : blue, write ou red.")
-			//->add_alias("-c")
-			//->add_abbrev("--blue" , "blue")
-			//->add_abbrev("--white", "white")
-			//->add_abbrev("--red"  , "red");
-		//// std::vector<string> color_values = {"blue", "write", "red"};
-		//// this->get_option("color")->set_values(color_values)
-
-
-		//opt = opts->add_doc("\nDébut des options génériques\n");
-		//int level = 2;
-		//opt = opts->add_int_option("--level", level)
-			//->set_desc("Niveau de verbosité")
-			//->add_alias("-L")
-			//->add_alias("--verbose-level")
-			//->add_abbrev("--debug", 5)
-			//->add_abbrev("-d", 5);
-
-		//bool dry_run = false;
-		//opt = opts->add_switch_option("--dry-run", dry_run)
-			//->set_desc("Simule l'exécution sans rien faire de dangereux")
-			//->add_abbrev("-n", "1");
-
-
-		//// personnalisation éventuelle du comportement (si option incorrecte)
-		//std::cout << "Appel de opts->on_error(\"warn\")\n";
-		//opts->on_error("warn");  // possibles : std::exit (par défaut), raise, warn, ignore
-
-
-		//std::cout << "Appel de opts->print_help()\n";
-		//opts->print_help(std::cout);
-
-		//std::cout << "Appel de opts->parse()\n";
-		//opts->parse();
-
-		//std::cout << "Appel de opts->map_options_to_s()\n";
-		//std::cout << opts->map_options_to_s();
-
-		//std::cout << "Appel de opts->inspect()\n";
-		//std::cout << opts->inspect();
-
-		//std::cout << "Appel de opts->print_values()\n";
-		//opts->print_values(); std::cout << std::endl;
-
-
-		//// Si on n'est pas sûr de l'existance de l'option :
-		//std::cout << "Recherche existance d'une option de clé \"--mydouble\"";
-		//if (opts->key_exists("--mydouble")) {
-			//std::cout << " => existe : " << opts->get("--mydouble")->value_to_s() << std::endl;
-		//} else {
-			//std::cout << " => N'existe pas !!!" << std::endl;
-		//}
-
-		//// Si on est sûr de l'existance de l'option :
-		//std::cout << "Accès générique via opts->get(\"--mydouble\")." << std::endl;
-		//std::cout << "On peut créer une variable locale ou un attribut pour permettre";
-		//std::cout << "un accès direct à chaque option." << std::endl;
-		//double thedouble = *(opts->get("--mydouble")->double_ref_variable);
-		//std::cout << "  La valeur de thedouble (--mydouble) est : " << thedouble << std::endl;
-
-		//std::string the_file;
-		//if (opts->params.size() == 0) {
-			//std::cout << "Erreur il faut au moins un nom de fichier en paramètre\n";
-		//} else {
-			//the_file = opts->params[0];
-		//}
-
-		//return opts;
-	//};
 }
 
