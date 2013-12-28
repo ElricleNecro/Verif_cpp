@@ -17,13 +17,36 @@ int comp(const void *a, const void *b);
 class Application {
 	public:
 		Application(
+			cli::Config cfg
+		) : logger(std::cout),
+		    reader(),
+		    opts(cfg),
+		    NbPart(-1),
+		    swap(NULL)
+		{
+			this->init();
+		}
+
+		Application(
 			int argc,
 			char *argv[]
 		) : logger(std::cout),
 		    reader(),
-		    opts(argc, argv),
 		    NbPart(-1),
 		    swap(NULL)
+		{
+			opts = cli::ArgsParser(argc, argv).GetParameters();
+			this->init();
+		}
+
+		~Application(void)
+		{
+			for(size_t i = 0, size = this->stats.size(); i < size; i++)
+				delete this->stats[i];
+			delete file;
+		}
+
+		void init(void)
 		{
 			this->AddReader(opts.name);
 
@@ -45,8 +68,8 @@ class Application {
 						Utils::rayon(
 							&this->particules[this->NbPart-1]
 						),
-						opts.nb_bin,
-						opts.norme
+						this->opts.nb_bin,
+						this->opts.norme
 					)
 			);
 			this->stats.push_back(
@@ -59,8 +82,8 @@ class Application {
 						Utils::rayon(
 							&this->particules[this->NbPart-1]
 						),
-						opts.nb_bin,
-						opts.norme
+						this->opts.nb_bin,
+						this->opts.norme
 					)
 			);
 			this->stats.push_back(
@@ -73,17 +96,10 @@ class Application {
 						Utils::rayon(
 							&this->particules[this->NbPart-1]
 						),
-						opts.nb_bin,
-						opts.norme
+						this->opts.nb_bin,
+						this->opts.norme
 					)
 			);
-		}
-
-		~Application(void)
-		{
-			for(size_t i = 0, size = this->stats.size(); i < size; i++)
-				delete this->stats[i];
-			delete file;
 		}
 
 		void AddReader(const std::string name)
@@ -113,11 +129,32 @@ class Application {
 
 		int main(void)
 		{
+			std::cout << opts.G << std::endl;
+			std::cout << opts.opening << std::endl;
+			std::cout << opts.softening << std::endl;
+			std::cout << opts.pos_conv << std::endl;
+			std::cout << opts.vit_conv << std::endl;
+			std::cout << opts.rayon << std::endl;
+			std::cout << opts.norme << std::endl;
+
+			std::cout << opts.type << std::endl;
+			std::cout << opts.leaf << std::endl;
+			std::cout << opts.verbosity << std::endl;
+			std::cout << opts.nb_bin << std::endl;
+
+			std::cout << opts.logfile << std::endl;
+			std::cout << opts.outfile << std::endl;
+			std::cout << opts.name << std::endl;
+			for(unsigned i=0; i<opts.infile.size(); i++)
+				std::cout << opts.infile[0] << std::endl;
+
+			return 0;
+
 			this->SortByR();
 			Physics::DensityCenter dc(
 					this->particules,
 					this->NbPart,
-					15,
+					this->opts.leaf,
 					{0., 0., 0.},
 					2.*Utils::rayon(&this->particules[this->NbPart-1]),
 					15
@@ -162,7 +199,8 @@ class Application {
 	private:
 		logging::Logger			 logger;
 		io::reader::Reader		 reader;
-		cli::DemoOptions		 opts;
+		cli::Config			 opts;
+		//cli::ArgsParser			 opts;
 		io::types::Particules		 particules;
 		int				 NbPart;
 		Tree::SwapFunc			*swap;
@@ -174,7 +212,9 @@ class Application {
 
 int main(int argc, char * argv[])
 {
-	Application app(argc, argv);
+	//Application app(argc, argv);
+	cli::ArgsParser args(argc, argv);
+	Application app(args.GetParameters());
 	return app.main();
 
 	int nb = 10;
