@@ -52,6 +52,7 @@ target_link_libraries(
 	verif++
 	#${IOGadget_LIBRARIES}
 	dl
+	yaml-cpp
 )
 
 install(TARGETS verif++ DESTINATION bin)
