@@ -1,39 +1,23 @@
 #include "cli/option.hpp"
 
 namespace cli {
-	DemoOptions::DemoOptions(int argc, char *argv[])
+	ArgsParser::ArgsParser(int argc, char *argv[])
 	{
 		parser = new OptionParser(argc, argv);
 
 		this->init_options();
 
-		// Personnalisation éventuelle du comportement : que faire si l'utilisateur
-		// passe une option incorrecte ?  Les valeurs possibles sont :
-		//      std::exit (par défaut), raise, warn, ignore
 		parser->on_error("exit");
-
-		// Permet des post-traitements (vérification de cohérence d'options,...)
 		pre_process_options();
-
-		// On peut lancer l'analyse ici ou bien le faire depuis le main() de la
-		// du programme principal.
 		parser->parse();
-
-		// Permet des post-traitements (vérification de cohérence entre options,...)
 		post_process_options();
-
-		// Les attributs options étant affectés, on peut supprimer le parser
-		// sauf si on souhaite exploiter quelques-unes de ses méthodes ou attributs
-		// e.g parser->print_values() ou parser->params
-		//  delete parser;
-		//  parser = NULL; // Utile ssi on veut pouvoir tester l'existence de parser !
 	}
 
-	DemoOptions::~DemoOptions(void)
+	ArgsParser::~ArgsParser(void)
 	{
 	}
 
-	void DemoOptions::pre_process_options(void)
+	void ArgsParser::pre_process_options(void)
 	{
 		if (parser->argc <= 1) {
 			std::cout << parser->abstract;
@@ -41,7 +25,7 @@ namespace cli {
 		}
 	}
 
-	void DemoOptions::post_process_options(void)
+	void ArgsParser::post_process_options(void)
 	{
 		if (this->print_exemple) {
 			std::cout << this->get_exemples();
@@ -50,9 +34,9 @@ namespace cli {
 
 		// Lecture des paramètres supplémentaires (sans clé associée)
 		// Paramètre 1 : fichier d'entrée
-		//  this->infile = "";
-		//  parser->add_string_option(this->infile)
-		//        ->set_desc("Fichier d'instance (à traité ou à généré).");
+		//this->infile = "";
+		//parser->add_string_option(this->infile)
+			//->set_desc("Fichier d'instance (à traité ou à généré).");
 		if (parser->params.size() < 1) {
 			this->parser->send_error("You should give an input file!");
 			std::exit(1);
@@ -61,7 +45,8 @@ namespace cli {
 		this->infile = parser->params;
 	}
 
-	std::string DemoOptions::get_exemples(void) {
+	std::string ArgsParser::get_exemples(void)
+	{
 		std::stringstream buf;
 		buf <<
 			"Usage example:\n" +
@@ -70,7 +55,8 @@ namespace cli {
 		return buf.str();
 	}
 
-	void DemoOptions::init_options(void) {
+	void ArgsParser::init_options(void)
+	{
 
 		//--------------
 		std::stringstream buf;
@@ -141,6 +127,74 @@ namespace cli {
 		// l'exécution de l'application proprement dite (si gain de place
 		// mémoire nécessaire)
 		parser->set_params_vector(this->params);
-	};
+	}
 
+	Config ArgsParser::GetParameters(void)
+	{
+		return this->Parameter;
+	}
+}
+
+namespace YAML {
+	Node convert<cli::Config>::encode(const cli::Config& rhs) {
+		Node node;
+
+		node["G"]         = rhs.G;
+		node["opening"]   = rhs.opening;
+		node["rayon"]     = rhs.rayon;
+		node["softening"] = rhs.softening;
+		node["pos_units"] = rhs.pos_conv;
+		node["vel_units"] = rhs.vit_conv;
+		node["norme"]     = rhs.norme;
+		node["logfile"]   = rhs.logfile;
+		node["outfile"]   = rhs.outfile;
+		node["plug-ins"]  = rhs.name;
+		node["nb_bin"]    = rhs.nb_bin;
+		node["verbosity"] = rhs.verbosity;
+		node["leaf"]      = rhs.leaf;
+
+		return node;
+	}
+	bool convert<cli::Config>::decode(const Node& node, cli::Config& rhs) {
+		if( node["G"] )
+			rhs.G = node["G"].as<double>();
+
+		if( node["opening"] )
+			rhs.opening = node["opening"].as<double>();
+
+		if( node["rayon"] )
+			rhs.rayon = node["rayon"].as<double>();
+
+		if( node["softening"] )
+			rhs.softening = node["softening"].as<double>();
+
+		if( node["pos_units"] )
+			rhs.pos_conv = node["pos_units"].as<double>();
+
+		if( node["vel_units"] )
+			rhs.vit_conv = node["vel_units"].as<double>();
+
+		if( node["norme"] )
+			rhs.norme = node["norme"].as<double>();
+
+		if( node["logfile"] )
+			rhs.logfile = node["logfile"].as<std::string>();
+
+		if( node["outfile"] )
+			rhs.outfile = node["outfile"].as<std::string>();
+
+		if( node["plug-ins"] )
+			rhs.name = node["plug-ins"].as<std::string>();
+
+		if( node["nb_bin"] )
+			rhs.nb_bin = node["nb_bin"].as<int>();
+
+		if( node["verbosity"] )
+			rhs.verbosity = node["verbosity"].as<int>();
+
+		if( node["leaf"] )
+			rhs.leaf = node["leaf"].as<int>();
+
+		return true;
+	}
 }
