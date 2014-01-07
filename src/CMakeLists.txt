@@ -1,17 +1,9 @@
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-########
-# Dépendances :
-###############
-#find_package(IOGadget)
-
 #############
 # Répertoire à inclure :
 ########################
 include_directories(../include/ ) #${IOGadget_INCLUDE_DIRS})
-#link_directories(${IOGadget_LIBRARY_DIRS})
-
-#message(STATUS "${IOGadget_LIBRARIES}")
 
 ####################
 # Liste des fichiers sources :
@@ -38,8 +30,6 @@ file(
 	include/plugins/*.hpp
 )
 
-#install(TARGETS verif++ DESTINATION bin)
-
 ############
 # Exécutable à construire :
 ###########################
@@ -50,7 +40,6 @@ add_executable(
 
 target_link_libraries(
 	verif++
-	#${IOGadget_LIBRARIES}
 	dl
 	yaml-cpp
 )
