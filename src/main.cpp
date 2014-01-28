@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "cli/option.hpp"
+#include "cfg/config.hpp"
 #include "log/logger.hpp"
 
 #include "io/types.hpp"
@@ -17,25 +18,19 @@ int comp(const void *a, const void *b);
 class Application {
 	public:
 		Application(
-			cli::Config cfg
+			const int argc,
+			const char **argv
 		) : logger(std::cout),
 		    reader(),
-		    opts(cfg),
 		    NbPart(-1),
 		    swap(NULL)
 		{
-			this->init();
-		}
+			cli::ArgumentParser<> parser(argc, argv);
+			parser.Add("-c")->UseArgs().Alias("--config").Set_Help("Configuration file to use.");
+			parser.Add("-G")->UseArgs().Alias("--grav-constant").Set_Help("Value of the gravitationnal constant.");
+			parser.Add("--activate")->Set_Help("Test de booléan");
+			cli::Config cfg_args = parser.Parse();
 
-		Application(
-			int argc,
-			char *argv[]
-		) : logger(std::cout),
-		    reader(),
-		    NbPart(-1),
-		    swap(NULL)
-		{
-			opts = cli::ArgsParser(argc, argv).GetParameters();
 			this->init();
 		}
 
@@ -199,22 +194,22 @@ class Application {
 	private:
 		logging::Logger			 logger;
 		io::reader::Reader		 reader;
-		cli::Config			 opts;
+		cfg::Config			 opts;
 		//cli::ArgsParser			 opts;
 		io::types::Particules		 particules;
 		int				 NbPart;
 		Tree::SwapFunc			*swap;
 		io::reader::PlugReader		*file;
-		io::reader::FreeFunc		*free;
+		//io::reader::FreeFunc		*free;
 		std::vector<Stats::Histogram*>	 stats;
 		//cfg::ConfigFile file;
 };
 
-int main(int argc, char * argv[])
+int main(int argc, char ** argv)
 {
 	//Application app(argc, argv);
-	cli::ArgsParser args(argc, argv);
-	Application app(args.GetParameters());
+	//cli::ArgsParser args(argc, argv);
+	Application app((const int)argc, (const char**)argv); //args.GetParameters());
 	return app.main();
 
 	int nb = 10;

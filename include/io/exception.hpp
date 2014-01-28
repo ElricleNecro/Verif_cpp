@@ -9,9 +9,9 @@ namespace io {
 		public:
 			Unsupported(const char *except);
 			Unsupported(std::string except);
-			virtual ~Unsupported(void) throw();
+			virtual ~Unsupported(void) noexcept;
 
-			virtual const char* what(void) const throw();
+			virtual const char* what(void) const noexcept;
 
 		private:
 			std::string msg;

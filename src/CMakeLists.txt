@@ -18,6 +18,7 @@ file(
 	physics/*.cpp
 	tree/*.cpp
 	cli/*.cpp
+	cfg/*.cpp
 	io/*.cpp
 	plugins/*.cpp
 	include/utils.hpp
@@ -26,6 +27,7 @@ file(
 	include/physics/*.hpp
 	include/tree/*.hpp
 	include/cli/*.hpp
+	include/cfg/*.hpp
 	include/io/*.hpp
 	include/plugins/*.hpp
 )

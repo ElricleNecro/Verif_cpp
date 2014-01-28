@@ -6,7 +6,6 @@
 
 #include "define.h"
 #include "io/types.hpp"
-#include "cli/option.hpp"
 #include "log/logger.hpp"
 #include "plugins/Plugins.hpp"
 #include "io/reader_interface.hpp"

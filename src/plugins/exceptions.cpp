@@ -11,11 +11,11 @@ namespace plugins {
 	{
 	}
 
-	PlugInNotFound::~PlugInNotFound(void) throw()
+	PlugInNotFound::~PlugInNotFound(void) noexcept
 	{
 	}
 
-	const char* PlugInNotFound::what(void) const throw()
+	const char* PlugInNotFound::what(void) const noexcept
 	{
 		return this->error.c_str();
 	}
@@ -31,11 +31,11 @@ namespace plugins {
 	{
 	}
 
-	PlugInWrongAPI::~PlugInWrongAPI(void) throw()
+	PlugInWrongAPI::~PlugInWrongAPI(void) noexcept
 	{
 	}
 
-	const char* PlugInWrongAPI::what(void) const throw()
+	const char* PlugInWrongAPI::what(void) const noexcept
 	{
 		return this->error.c_str();
 	}
@@ -51,11 +51,11 @@ namespace plugins {
 	{
 	}
 
-	PlugInError::~PlugInError(void) throw()
+	PlugInError::~PlugInError(void) noexcept
 	{
 	}
 
-	const char* PlugInError::what(void) const throw()
+	const char* PlugInError::what(void) const noexcept
 	{
 		return this->error.c_str();
 	}

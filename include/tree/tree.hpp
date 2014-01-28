@@ -17,9 +17,9 @@ namespace Tree {
 		public:
 			BuildError(const char* Msg);
 			BuildError(const std::string &Msg);
-			virtual ~BuildError(void) throw();
+			virtual ~BuildError(void) noexcept;
 
-			virtual const char* what(void) const throw();
+			virtual const char* what(void) const noexcept;
 
 		private:
 			std::string msg;

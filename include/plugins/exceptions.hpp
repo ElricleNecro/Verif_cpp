@@ -13,9 +13,9 @@ namespace plugins {
 		public:
 			PlugInNotFound(const char *msg);
 			PlugInNotFound(std::string &msg);
-			virtual ~PlugInNotFound(void) throw();
+			virtual ~PlugInNotFound(void) noexcept;
 
-			virtual const char* what(void) const throw();
+			virtual const char* what(void) const noexcept;
 
 		private:
 			std::string error;
@@ -25,9 +25,9 @@ namespace plugins {
 		public:
 			PlugInWrongAPI(const char *msg);
 			PlugInWrongAPI(std::string &msg);
-			virtual ~PlugInWrongAPI(void) throw();
+			virtual ~PlugInWrongAPI(void) noexcept;
 
-			virtual const char* what(void) const throw();
+			virtual const char* what(void) const noexcept;
 
 		private:
 			std::string error;
@@ -37,9 +37,9 @@ namespace plugins {
 		public:
 			PlugInError(const char *msg);
 			PlugInError(std::string &msg);
-			virtual ~PlugInError(void) throw();
+			virtual ~PlugInError(void) noexcept;
 
-			virtual const char* what(void) const throw();
+			virtual const char* what(void) const noexcept;
 
 		private:
 			std::string error;

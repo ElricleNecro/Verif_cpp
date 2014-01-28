@@ -1,39 +1,13 @@
 #ifndef VERIF_OPTION_USE_HPP
 #define VERIF_OPTION_USE_HPP
 
+#include <vector>
 #include <string>
 #include <iostream>
-#include <yaml-cpp/yaml.h>
 
-#include "cli/optionparser.hpp"
+#include "cli/types.hpp"
 
 namespace cli {
-	struct Config {
-			int type;
-			int verbosity;
-			int leaf;
-			int nb_bin;
-
-			bool periodic;
-			bool print_exemple;
-			bool gravity_instead_density;
-
-			double opening;
-			double G;
-			double rayon;
-			double softening;
-			double pos_conv;
-			double vit_conv;
-			double norme;
-
-			std::string logfile;
-			std::string outfile;
-			std::string name;
-			std::vector<std::string> infile;
-
-			~Config(void) {};
-	};
-
 	class FromYaml {
 		public:
 			FromYaml(const std::string &str);
@@ -44,61 +18,169 @@ namespace cli {
 			Config cfg;
 	};
 
-	class ArgsParser {
+	class DefaultChain
+	{
+		public:
+			std::string operator()(std::string &var)
+			{
+				return var;
+			}
+	};
+
+	template<typename _comparison = DefaultChain>
+	class ArgumentParser {
 		private:
-			OptionParser* parser;
-			Config Parameter;
+			class Option {
+				public:
+					Option(const std::string& nm)
+					: TakeArgs(false)
+					{
+						this->names.push_back(nm);
+					}
+					Option(const Option& opt)
+					: TakeArgs(false)
+					{
+						this->names = opt.names;
+						this->help  = opt.help;
+					}
+					Option(void)
+					: TakeArgs(false)
+					{
+					}
+
+					Option& Set_Name(const std::string& nm)
+					{
+						this->names.push_back(nm);
+						return *this;
+					}
+					Option& Set_Help(const std::string& hp)
+					{
+						this->help = hp;
+						return *this;
+					}
+					std::string& Get_Help(void)
+					{
+						return this->help;
+					}
+
+					Option& Alias(const std::string& nm)
+					{
+						this->names.push_back(nm);
+						return *this;
+					}
+					Option& UseArgs(void)
+					{
+						this->TakeArgs = true;
+						return *this;
+					}
+
+					bool In(const std::string& var)
+					{
+						for( auto x: this->names )
+							if( var == x )
+								return true;
+						return false;
+					}
+
+				private:
+					std::vector<std::string> names;
+					std::string help;
+					bool TakeArgs;
+					friend class ArgumentParser;
+			};
+
+			void add_args(const int argc, const char** argv)
+			{
+				this->exec_name = argv[0];
+				for(int i=1; i<argc; i++)
+					this->args.push_back(argv[i]);
+			}
+			void print_help(void)
+			{
+				std::cout << this->exec_name << " [options]" << std::endl;
+				for( auto *x : this->opt )
+				{
+					std::cout << x->names[0];
+					for( unsigned int i = 1; i < x->names.size(); i++ )
+						std::cout << ", " << x->names[i];
+					std::cout << "\t" << x->Get_Help() << std::endl;
+				}
+				std::cout << "-h, --help\tShow this help message." << std::endl;
+			}
+
+			std::vector<std::string> args;
+			std::vector<Option*> opt;
+			std::string exec_name;
+			_comparison comp;
+			int exit_code;
 
 		public:
-			int nbbin;
-			int type;
-			int verbosity;
-			int leaf;
-			int nb_bin;
+			ArgumentParser(void)
+			: exit_code(EXIT_SUCCESS)
+			{
+			}
+			ArgumentParser(const int argc, const char** argv)
+			: exit_code(EXIT_SUCCESS)
+			{
+				this->add_args(argc, argv);
+			}
+			~ArgumentParser(void)
+			{
+				for( auto &x : this->opt )
+					delete x;
+			}
 
-			bool periodic;
-			bool print_exemple;
-			bool gravity_instead_density;
+			Option* Add(std::string name)
+			{
+				this->opt.push_back(new Option(name));
+				return this->opt.back();
+			}
 
-			double opening;
-			double G;
-			double rayon;
-			double softening;
-			double pos_conv;
-			double vit_conv;
-			double norme;
+			cli::Config Parse(const int argc, const char** argv)
+			{
+				this->add_args(argc, argv);
+				return this->Parse();
+			}
+			cli::Config Parse(void)
+			{
+				cli::Config parsed;
+				for( unsigned int i = 0; i < this->args.size(); i++ )
+				{
+					if( this->args[i] == "-h" || this->args[i] == "--help")
+					{
+						this->print_help();
+						std::exit(this->exit_code);
+					}
+					for( auto dopt: this->opt )
+					{
+						if( dopt->In(this->args[i]) )
+						{
+							if( dopt->TakeArgs )
+							{
+								parsed[
+									this->comp(
+											dopt->names[0]
+										  )
+									].Set(this->args[++i]);
+							}
+							else
+							{
+								parsed[
+									this->comp(
+											dopt->names[0]
+										  )
+									].Set("true");
+							}
+							break;
+						}
+					}
+				}
 
-			std::string logfile;
-			std::vector<std::string> infile;
-			std::string outfile;
-			std::string name;
-
-			// liste des paramètres simples (par exemple la listes des fichiers à traiter)
-			// déjà accessible dans parser, mon on peut souhaiter supprimé l'objer
-			// parser après l'analyse.
-			std::vector<std::string> params;
-
-		public:
-			ArgsParser(int argc, char *argv[]);
-			~ArgsParser(void);
-
-			void pre_process_options(void);
-
-			void post_process_options(void);
-
-			std::string get_exemples(void);
-			void init_options(void);
-
-			Config GetParameters(void);
+				return parsed;
+			}
 	};
-}
 
-namespace YAML {
-	template<>
-	struct convert<cli::Config> {
-		static Node encode(const cli::Config& rhs);
-		static bool decode(const Node& node, cli::Config& rhs);
-	};
+	typedef ArgumentParser<> DefaultParser;
 }
 
 #endif /* end of include guard */

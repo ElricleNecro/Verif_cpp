@@ -20,11 +20,11 @@ namespace Tree {
 	{
 	}
 
-	BuildError::~BuildError(void) throw()
+	BuildError::~BuildError(void) noexcept
 	{
 	}
 
-	const char* BuildError::what(void) const throw()
+	const char* BuildError::what(void) const noexcept
 	{
 		return this->msg.c_str();
 	}
@@ -155,6 +155,7 @@ namespace Tree {
 		else
 			if( this->frere != NULL )
 				return this->frere->GetNodeOf(part);
+		return NULL;
 	}
 
 	io::types::Particules OctTree::GetPart(void)

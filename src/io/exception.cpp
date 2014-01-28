@@ -8,11 +8,11 @@ namespace io {
 	{
 	}
 
-	Unsupported::~Unsupported(void) throw()
+	Unsupported::~Unsupported(void) noexcept
 	{
 	}
 
-	const char* Unsupported::what(void) const throw()
+	const char* Unsupported::what(void) const noexcept
 	{
 		return msg.c_str();
 	}

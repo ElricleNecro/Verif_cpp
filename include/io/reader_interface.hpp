@@ -7,7 +7,6 @@
 #include "define.h"
 
 #include "io/types.hpp"
-#include "cli/option.hpp"
 
 namespace io {
 	namespace reader {
@@ -15,8 +14,6 @@ namespace io {
 			public:
 				PlugReader(const std::string &fname);
 				virtual ~PlugReader(void);
-
-				virtual void SetFromCLI(const cli::Config &opt);
 
 				virtual void Read(void);
 				virtual types::Particules GetParticules(void);
