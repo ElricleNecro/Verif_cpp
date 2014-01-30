@@ -45,4 +45,5 @@ add_subdirectory(src)
 # Configuration :
 #################
 configure_file(config.h.cmake ${CMAKE_SOURCE_DIR}/include/define.h)
+install(FILES share/verif/config.yaml DESTINATION share/verif/)
 
