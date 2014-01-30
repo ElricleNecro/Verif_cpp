@@ -5,12 +5,22 @@ namespace logging {
 	{
 	}
 
+	Logger::Logger(Logger &lo) : out(lo.out)
+	{
+	}
+
 	Logger::Logger(std::ostream &out) : out(&out)
 	{
 	}
 
 	Logger::~Logger(void)
 	{
+	}
+
+	Logger& Logger::operator=(Logger& logger)
+	{
+		this->out = logger.out;
+		return *this;
 	}
 
 	void Logger::SetInstanceName(const std::string &prog_name)

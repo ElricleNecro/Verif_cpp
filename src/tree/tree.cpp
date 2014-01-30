@@ -12,11 +12,18 @@ namespace Tree {
 		return ss.str();//return a string with the contents of the stream
 	}
 
-	BuildError::BuildError(const char* Msg) : msg(Msg)
+	BuildError::BuildError(const char* Msg)
+	: msg(Msg)
 	{
 	}
 
-	BuildError::BuildError(const std::string& Msg) : msg(Msg)
+	BuildError::BuildError(const BuildError& old)
+	: msg(old.msg)
+	{
+	}
+
+	BuildError::BuildError(const std::string& Msg)
+	: msg(Msg)
 	{
 	}
 

@@ -22,6 +22,7 @@ namespace logging {
 		public:
 			Logger(void);
 			Logger(std::ostream &out);
+			Logger(Logger &lo);
 			virtual ~Logger(void);
 
 			void SetInstanceName(const std::string &prog_name);
@@ -30,6 +31,8 @@ namespace logging {
 			std::ostream& GetOutput(void);
 
 			std::ostream& Print(LogLevel flag);
+
+			Logger& operator=(Logger& logger);
 
 		private:
 			std::string format_date(std::tm *oh);
