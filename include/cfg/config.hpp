@@ -27,7 +27,6 @@ namespace cfg {
 			std::string name;
 			std::vector<std::string> infile;
 	};
-
 }
 
 namespace YAML {
@@ -38,18 +37,20 @@ namespace YAML {
 			Node node;
 
 			node["G"]         = rhs.G;
-			node["opening"]   = rhs.opening;
+			node["norme"]     = rhs.norme;
 			node["rayon"]     = rhs.rayon;
+			node["opening"]   = rhs.opening;
 			node["softening"] = rhs.softening;
 			node["pos_units"] = rhs.pos_conv;
 			node["vel_units"] = rhs.vit_conv;
-			node["norme"]     = rhs.norme;
+
+			node["leaf"]      = rhs.leaf;
+			node["nb_bin"]    = rhs.nb_bin;
+			node["verbosity"] = rhs.verbosity;
+
 			node["logfile"]   = rhs.logfile;
 			node["outfile"]   = rhs.outfile;
 			node["plug-ins"]  = rhs.name;
-			node["nb_bin"]    = rhs.nb_bin;
-			node["verbosity"] = rhs.verbosity;
-			node["leaf"]      = rhs.leaf;
 
 			return node;
 		}
@@ -94,6 +95,9 @@ namespace YAML {
 			if( node["leaf"] )
 				rhs.leaf = node["leaf"].as<int>();
 
+			if( node["type"] )
+				rhs.type = node["type"].as<int>();
+
 			return true;
 		}
 	};
@@ -111,8 +115,15 @@ namespace cfg {
 			{
 				YAML::Node config = YAML::LoadFile(fname.c_str());
 				YAML::convert<Config>::decode(config, this->param);
-				//YAML::convert<Config> tmp;
-				//tmp.decode(config, this->param);
+			}
+			void Add(YAML::Node& node)
+			{
+				YAML::convert<Config>::decode(node, this->param);
+			}
+
+			Config Get(void)
+			{
+				return this->param;
 			}
 		private:
 			Config param;
