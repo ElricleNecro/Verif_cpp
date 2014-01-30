@@ -15,6 +15,36 @@
 
 int comp(const void *a, const void *b);
 
+class ArgsChain
+{
+	private:
+		std::map<std::string, std::string> corres;
+
+	public:
+		ArgsChain(void)
+		{
+			this->corres["-G"]          = "G";
+			this->corres["--opening"]   = "opening";
+			this->corres["-r"]          = "rayon";
+			this->corres["--softening"] = "softening";
+			this->corres["--pos-units"] = "pos_units";
+			this->corres["--vel-units"] = "vel_units";
+			this->corres["--norme"]     = "norme";
+			this->corres["--log"]       = "logfile";
+			this->corres["-o"]          = "outfile";
+			this->corres["--reader"]    = "plug-ins";
+			this->corres["--nb-bins"]   = "nb_bin";
+			this->corres["-v"]          = "verbosity";
+			this->corres["-l"]          = "leaf";
+			this->corres["-c"]          = "config";
+		}
+		std::string operator()(std::string& var)
+		{
+			return this->corres[var];
+		}
+};
+
+
 class Application {
 	public:
 		Application(
@@ -23,22 +53,59 @@ class Application {
 		) : logger(std::cout),
 		    reader(),
 		    NbPart(-1),
-		    swap(NULL)
+		    swap(NULL),
+		    file(NULL)
 		{
-			cli::ArgumentParser<> parser(argc, argv);
+			cli::ArgumentParser<ArgsChain> parser(argc, argv);
+			// Short options:
 			parser.Add("-c")->UseArgs().Alias("--config").Set_Help("Configuration file to use.");
 			parser.Add("-G")->UseArgs().Alias("--grav-constant").Set_Help("Value of the gravitationnal constant.");
-			parser.Add("--activate")->Set_Help("Test de booléan");
+			parser.Add("-r")->UseArgs().Alias("--rayon").Set_Help("Cut-off radius.");
+			parser.Add("-l")->UseArgs().Alias("--leaf").Set_Help("Number of particles per leaf.");
+			parser.Add("-v")->UseArgs().Alias("--verbosity").Set_Help("Verbosity level.");
+			parser.Add("-o")->UseArgs().Alias("--outout").Set_Help("Output file.");
+
+			// Long options:
+			parser.Add("--pos-units")->UseArgs().Set_Help("Conversion factor for position.");
+			parser.Add("--vel-units")->UseArgs().Set_Help("Conversion factor for velocities.");
+			parser.Add("--reader")->UseArgs().Set_Help("Reader to use.");
+			parser.Add("--softening")->UseArgs().Set_Help("Softening parameter for the potential calculation.");
+			parser.Add("--opening")->UseArgs().Set_Help("Opening angle for the Peano-Hilbert criterion.");
+			parser.Add("--log")->UseArgs().Set_Help("Log file.");
+			parser.Add("--norme")->UseArgs().Set_Help("Normalisation parameter for the radius axis of statistical data.");
+			parser.Add("--nb-bins")->UseArgs().Set_Help("Number of bin to use with the histograms.");
+
 			cli::Config cfg_args = parser.Parse();
 
-			this->init();
+			std::cout << "Test: " << cfg_args["config"].as<std::string>() << " == " << cfg_args["leaf"].as<int>() << std::endl;
+
+			cfg::ConfigReader config(INSTALL_DIR"/share/verif/config.yaml");
+			config.Add(cfg_args["config"].as<std::string>());
+			YAML::Node tmp = YAML::convert<cli::Config>::encode(cfg_args);
+			config.Add(tmp);
+			this->opts = config.Get();
+
+			std::cout << opts.G << std::endl;
+			std::cout << opts.opening << std::endl;
+			std::cout << opts.softening << std::endl;
+			std::cout << opts.pos_conv << std::endl;
+			std::cout << opts.vit_conv << std::endl;
+			std::cout << opts.rayon << std::endl;
+			std::cout << opts.norme << std::endl;
+
+			std::cout << opts.type << std::endl;
+			std::cout << opts.leaf << std::endl;
+			std::cout << opts.nb_bin << std::endl;
+
+			//this->init();
 		}
 
 		~Application(void)
 		{
 			for(size_t i = 0, size = this->stats.size(); i < size; i++)
 				delete this->stats[i];
-			delete file;
+			if( this->file != NULL )
+				delete file;
 		}
 
 		void init(void)
@@ -47,7 +114,6 @@ class Application {
 
 			this->file	 = reader.GetInstance(opts.name, "New")(opts.infile[0].c_str());
 			this->swap       = reader.GetSwap(opts.name, "Swap");
-			//this->file.SetFromCLI()
 			this->file->Read();
 			this->particules = this->file->GetParticules();
 			this->NbPart     = this->file->NbPart();
@@ -124,6 +190,7 @@ class Application {
 
 		int main(void)
 		{
+			return 0;
 			std::cout << opts.G << std::endl;
 			std::cout << opts.opening << std::endl;
 			std::cout << opts.softening << std::endl;
