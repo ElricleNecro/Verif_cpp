@@ -15,5 +15,7 @@
 #define VERIF_VERSION_MAJOR @VERIF_VERSION_MAJOR@
 #define VERIF_VERSION_MINOR @VERIF_VERSION_MINOR@
 
+#define INSTALL_DIR "@CMAKE_INSTALL_PREFIX@"
+
 #endif /* end of include guard */
 //vim:ft=cpp

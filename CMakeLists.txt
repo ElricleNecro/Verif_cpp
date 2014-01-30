@@ -18,6 +18,8 @@ set(VERIF_VERSION_MINOR 1)
 ##################################################
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/.cmake/Modules/")
 
+message(STATUS "Installation PREFIX: " ${CMAKE_INSTALL_PREFIX})
+
 #################
 # Quelques flags de compilation :
 #################################
