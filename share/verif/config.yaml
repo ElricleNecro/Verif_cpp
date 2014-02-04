@@ -1,0 +1,18 @@
+G: 5.5
+opening: 0.5
+rayon:
+        -1.0
+softening:
+        0.0
+pos_units:
+        1.0
+vel_units:
+        1.0
+norme:
+        1.0
+nb_bin:
+        300
+leaf:
+        15
+type:
+        4
