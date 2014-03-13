@@ -22,3 +22,4 @@ test_opt/*
 test.yaml
 test2.yaml
 ressource
+recup_writer.hpp
