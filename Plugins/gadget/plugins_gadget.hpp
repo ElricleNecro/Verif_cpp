@@ -10,7 +10,7 @@
 
 #include <IOGadget/gadget.h>
 
-#include "cli/option.hpp"
+// #include "cli/option.hpp"
 #include "plugins/exceptions.hpp"
 #include "io/reader_interface.hpp"
 
@@ -19,7 +19,7 @@ class Gadget : io::reader::PlugReader {
 		Gadget(const std::string &fname);
 		virtual ~Gadget(void);
 
-		virtual void SetFromCLI(const cli::DemoOptions &opt);
+		// virtual void SetFromCLI(const cli::DemoOptions &opt);
 
 		virtual void Read(void);
 		virtual io::types::ParticuleData* GetParticules(void);
@@ -34,7 +34,7 @@ class Gadget : io::reader::PlugReader {
 
 extern "C" {
 	Version GetAPIVersion(void);
-	Gadget* New(const char *fname);
+	Gadget* Toto(const char *fname);
 	void Swap(iogadget::Particule_d a, iogadget::Particule_d b);
 	void Free(io::types::ParticuleData *part);
 }
