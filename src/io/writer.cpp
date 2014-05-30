@@ -2,24 +2,24 @@
 
 namespace io {
 	namespace writer {
-		//Writer::Writer(void);
-		//Writer::~Writer(void);
-		//void Writer::LoadPlugins(const std::string &file_name);
-		class HDF5Writer {
-			HDF5Writer(const std::string& fname)
-			: file(fname, H5F_ACC_TRUNC)
-			{
-			}
+		Writer::Writer(void)
+		{
+		}
 
-			HDF5Writer::~HDF5Writer(void)
-			{
-				this->file.close();
-			}
+		Writer::~Writer(void)
+		{
+		}
 
-			void HDF5Writer::Write(double *data, const int N, const char *fname)
-			{
-			}
-		};
+		plugins::Plugins Writer::LoadPlugins(const std::string &file_name)
+		{
+			plugins::Plugins tmp(file_name);
+			return tmp;
+		}
+
+		void Writer::Add(const std::string &file_name)
+		{
+			this->PlugList[file_name] = this->LoadPlugins(file_name);
+		}
 	}
 }
 

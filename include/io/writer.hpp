@@ -22,29 +22,12 @@ namespace io {
 				Writer(void);
 				~Writer(void);
 
-				void LoadPlugins(const std::string &file_name);
+				void Add(const std::string &file_name);
+				plugins::Plugins LoadPlugins(const std::string &file_name);
 				//New GetInstance(const std::string& func);
 
 			private:
 				std::map<std::string, plugins::Plugins> PlugList;
-		};
-
-		<template T>
-		struct to_write {
-			std::string key;
-			T* data;
-		};
-
-		class HDF5Writer {
-			private:
-				H5File file;
-
-			public:
-				HDF5Writer(const std::string& name);
-
-				H5::DataSet NewDataSet(const std::string& name, const H5::DataType& type);
-				Append(const std::string& node, double* tab, const int N);
-				Append(const std::string& node, int* tab, const int N);
 		};
 	}
 }
