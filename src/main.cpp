@@ -80,7 +80,7 @@ class Application {
 			std::cout << "Test: " << cfg_args["config"].as<std::string>() << " == " << cfg_args["leaf"].as<int>() << std::endl;
 
 			cfg::ConfigReader config(INSTALL_DIR"/share/verif/config.yaml");
-			config.Add(cfg_args["config"].as<std::string>());
+			// config.Add(cfg_args["config"].as<std::string>());
 			YAML::Node tmp = YAML::convert<cli::Config>::encode(cfg_args);
 			config.Add(tmp);
 			this->opts = config.Get();
@@ -97,7 +97,7 @@ class Application {
 			std::cout << opts.leaf << std::endl;
 			std::cout << opts.nb_bin << std::endl;
 
-			//this->init();
+			this->init();
 		}
 
 		~Application(void)
@@ -112,7 +112,7 @@ class Application {
 		{
 			this->AddReader(opts.name);
 
-			this->file	 = reader.GetInstance(opts.name, "New")(opts.infile[0].c_str());
+			this->file	 = reader.GetInstance(opts.name, "Toto")(opts.infile[0].c_str());
 			this->swap       = reader.GetSwap(opts.name, "Swap");
 			this->file->Read();
 			this->particules = this->file->GetParticules();
