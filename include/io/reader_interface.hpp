@@ -18,6 +18,7 @@ namespace io {
 				virtual void Read(void);
 				virtual types::Particules GetParticules(void);
 				virtual int NbPart(void);
+				virtual double Time(void);
 
 			protected:
 				std::string fname;

@@ -33,10 +33,19 @@ class Gadget : io::reader::PlugReader {
 };
 
 extern "C" {
-	Version GetAPIVersion(void);
-	Gadget* Toto(const char *fname);
-	void Swap(iogadget::Particule_d a, iogadget::Particule_d b);
-	void Free(io::types::ParticuleData *part);
+	Version GetAPIVersion(void)
+	{
+		return Version{.major = 0, .minor = 1};
+	};
+	Gadget* Create(const char *fname)
+	{
+		return new Gadget(fname);
+	};
+	// void Swap(iogadget::Particule_d a, iogadget::Particule_d b);
+	void Free(io::types::ParticuleData *part)
+	{
+		std::free(part);
+	};
 }
 
 #endif /* end of include guard */

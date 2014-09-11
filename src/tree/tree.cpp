@@ -317,7 +317,7 @@ namespace Tree {
 
 				if( i != used )
 				{
-					io::types::Swap(&this->first[i], &this->first[used]);
+					io::types::Swap( &this->first[i], &this->first[used]);
 				}
 				used++;
 			}

@@ -1,4 +1,3 @@
-# vim: spelllang=
 # Version minimum de CMake qui est nécessaire pour compiler :
 cmake_minimum_required(VERSION 2.6)
 
@@ -30,8 +29,8 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG} -g -pg")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_RELEASE} -O3")
 
 IF(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
-	SET(CMAKE_BUILD_TYPE Release)
-	#SET(CMAKE_BUILD_TYPE Debug)
+	# SET(CMAKE_BUILD_TYPE Release)
+	SET(CMAKE_BUILD_TYPE Debug)
 ENDIF(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
 
 # The macro below forces the build directory to be different from source directory:
@@ -47,3 +46,4 @@ add_subdirectory(src)
 configure_file(config.h.cmake ${CMAKE_SOURCE_DIR}/include/define.h)
 install(FILES share/verif/config.yaml DESTINATION share/verif/)
 
+# vim: spelllang=

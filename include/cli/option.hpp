@@ -7,6 +7,15 @@
 
 #include "cli/types.hpp"
 
+template <typename T>
+void remove(std::vector<T>& vec, size_t pos)
+{
+	auto it = vec.begin();
+	std::advance(it, pos);
+	vec.erase(it);
+}
+
+
 namespace cli {
 	class FromYaml {
 		public:
@@ -115,6 +124,8 @@ namespace cli {
 			int exit_code;
 
 		public:
+			std::vector<std::string> other;
+
 			ArgumentParser(void)
 			: exit_code(EXIT_SUCCESS)
 			{
@@ -143,6 +154,7 @@ namespace cli {
 			}
 			cli::Config Parse(void)
 			{
+				bool used = false;
 				cli::Config parsed;
 				for( unsigned int i = 0; i < this->args.size(); i++ )
 				{
@@ -151,6 +163,8 @@ namespace cli {
 						this->print_help();
 						std::exit(this->exit_code);
 					}
+
+					used = false;
 					for( auto dopt: this->opt )
 					{
 						if( dopt->In(this->args[i]) )
@@ -159,24 +173,32 @@ namespace cli {
 							{
 								parsed[
 									this->comp(
-											dopt->names[0]
-										  )
-									].Set(this->args[++i]);
+										dopt->names[0]
+									)
+								].Set(this->args[++i]);
 							}
 							else
 							{
 								parsed[
 									this->comp(
-											dopt->names[0]
-										  )
-									].Set("true");
+										dopt->names[0]
+									)
+								].Set("true");
 							}
+							used = true;
 							break;
 						}
 					}
+
+					if( ! used )
+						this->other.push_back(this->args[i]);
 				}
 
 				return parsed;
+			}
+			std::vector<std::string> GetUnused(void)
+			{
+				return this->other;
 			}
 	};
 

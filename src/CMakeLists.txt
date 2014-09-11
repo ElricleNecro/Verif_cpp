@@ -19,7 +19,13 @@ file(
 	tree/*.cpp
 	cli/*.cpp
 	cfg/*.cpp
-	io/*.cpp
+	# io/*.cpp
+	io/exception.cpp
+	io/reader.cpp
+	io/reader_interface.cpp
+	io/types.cpp
+	io/writer.cpp
+	io/writer_interface.cpp
 	plugins/*.cpp
 	include/utils.hpp
 	include/app/*.hpp
@@ -30,6 +36,12 @@ file(
 	include/cfg/*.hpp
 	include/io/*.hpp
 	include/plugins/*.hpp
+	include/io/exception.hpp
+	include/io/reader.hpp
+	include/io/reader_interface.hpp
+	include/io/types.hpp
+	include/io/writer.hpp
+	include/io/writer_interface.hpp
 )
 
 ############
@@ -44,6 +56,9 @@ target_link_libraries(
 	verif++
 	dl
 	yaml-cpp
+	hdf5
+	boost_filesystem
+	boost_system
 )
 
 install(TARGETS verif++ DESTINATION bin)

@@ -20,6 +20,11 @@ namespace io {
 			return -1;
 		}
 
+		double PlugReader::Time(void)
+		{
+			return 0.;
+		}
+
 		types::Particules PlugReader::GetParticules(void)
 		{
 			return NULL;

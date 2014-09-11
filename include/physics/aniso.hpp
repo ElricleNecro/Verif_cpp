@@ -21,6 +21,7 @@ namespace Stats {
 			double GetAnisotropy(void);
 
 			void Calcul(void);
+			void OldCalcul(void);
 
 			using Histogram::operator();
 			using Histogram::operator[];

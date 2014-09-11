@@ -36,6 +36,7 @@ namespace plugins {
 
 	void Plugins::load(void)
 	{
+		std::cerr << "Loading " << plug_name << "!" << std::endl;
 		this->id = dlopen(this->plug_name.c_str(), RTLD_LAZY);
 		if( this->id == NULL )
 		{

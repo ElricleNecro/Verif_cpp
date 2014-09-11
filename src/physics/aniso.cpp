@@ -28,6 +28,10 @@ namespace Stats {
 
 	void Anisotropy::Calcul(void)
 	{
+	}
+
+	void Anisotropy::OldCalcul(void)
+	{
 		double *vr    = NULL,
 		*vt    = NULL,
 		*vp    = NULL,

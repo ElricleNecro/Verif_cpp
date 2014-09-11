@@ -4,6 +4,9 @@
 #include <cstdlib>
 #include <iostream>
 
+#include <hdf5.h>
+#include <boost/filesystem.hpp>
+
 #include "cli/option.hpp"
 #include "cfg/config.hpp"
 #include "log/logger.hpp"
@@ -13,7 +16,144 @@
 #include "physics/physics.hpp"
 #include "tree/densitycenter.hpp"
 
+namespace fs = boost::filesystem;
+
 int comp(const void *a, const void *b);
+
+typedef struct _ExtensibleDataSet {
+	hsize_t size[2], offset[2];
+	hid_t dataset, file, grp;
+	bool incremente;
+} *ExtensibleDataSet;
+
+ExtensibleDataSet CreateExtensibleDS(hid_t id, const char *sub_grp, hsize_t dims[2]) //const int lig, const int col)
+{
+	ExtensibleDataSet  obj = (ExtensibleDataSet) malloc(sizeof( struct _ExtensibleDataSet ));
+	hid_t              cparms;
+	hid_t              ds,
+			   dsp;
+	hsize_t            maxdims[2] = {H5S_UNLIMITED, H5S_UNLIMITED};
+	herr_t             status;
+
+	// Création du Chunk permettant d'insérer des colonnes ou lignes au fur et à mesure :
+	cparms         = H5Pcreate(H5P_DATASET_CREATE);
+	status         = H5Pset_chunk(cparms, 2, dims);
+
+	// Création de l'espace de travail à allouer :
+	dsp            = H5Screate_simple(2, dims, maxdims);
+
+	// Création du dataset en lui-même :
+	ds             = H5Dcreate(id, sub_grp, H5T_IEEE_F64LE, dsp, H5P_DEFAULT, cparms, H5P_DEFAULT);
+
+	// Enregistrement des propriétés du Dataset :
+	obj->size[0]   = dims[0];
+	obj->size[1]   = dims[1];
+	obj->dataset   = ds;
+	obj->file      = id;
+	obj->offset[0] = 0;
+	obj->offset[1] = 0;
+	obj->incremente= false;
+
+	H5Sclose(dsp);
+
+	return obj;
+	(void)status;
+}
+
+ExtensibleDataSet CreateExtensibleDS_integer(hid_t id, const char *sub_grp, hsize_t dims[2]) //const int lig, const int col)
+{
+	ExtensibleDataSet  obj = (ExtensibleDataSet) malloc(sizeof( struct _ExtensibleDataSet ));
+	hid_t              cparms;
+	hid_t              ds,
+			   dsp;
+	hsize_t            maxdims[2] = {H5S_UNLIMITED, H5S_UNLIMITED};
+	herr_t             status;
+
+	// Création du Chunk permettant d'insérer des colonnes ou lignes au fur et à mesure :
+	cparms         = H5Pcreate(H5P_DATASET_CREATE);
+	status         = H5Pset_chunk(cparms, 2, dims);
+
+	// Création de l'espace de travail à allouer :
+	dsp            = H5Screate_simple(2, dims, maxdims);
+
+	// Création du dataset en lui-même :
+	ds             = H5Dcreate(id, sub_grp, H5T_STD_I32LE, dsp, H5P_DEFAULT, cparms, H5P_DEFAULT);
+
+	// Enregistrement des propriétés du Dataset :
+	obj->size[0]   = dims[0];
+	obj->size[1]   = dims[1];
+	obj->dataset   = ds;
+	obj->file      = id;
+	obj->offset[0] = 0;
+	obj->offset[1] = 0;
+	obj->incremente= false;
+
+	H5Sclose(dsp);
+
+	return obj;
+	(void)status;
+}
+
+void ExtensibleDataSet_Extend(ExtensibleDataSet id, const double *data, hsize_t dims[2])
+{
+	// On étend l'espace alloué au dataset :
+	if( id->incremente || id->size[1] < dims[1] )
+		id->size[1]     += dims[1];
+	else
+		id->incremente = true;
+	herr_t status    = H5Dextend(id->dataset, id->size);
+	// On récupère les infos sur l'espace nouvellement alloué :
+	hid_t  filespace = H5Dget_space(id->dataset);
+	// On sélectionne la zone où l'on va écrire les nouvelles données :
+	status           = H5Sselect_hyperslab(filespace, H5S_SELECT_SET, id->offset, NULL, dims, NULL);
+	// On crée le dataspace pour les nouvelles données :
+	hid_t  dataspace = H5Screate_simple(2, dims, NULL);
+
+	// On écrit les données :
+	status           = H5Dwrite(id->dataset, H5T_NATIVE_DOUBLE, dataspace, filespace, H5P_DEFAULT, data);
+
+	// On incrémente l'offset :
+	//id->offset[0]    += dims[0];
+	id->offset[1]   += dims[1];
+
+	// On libère la mémoire :
+	H5Sclose(filespace);
+	H5Sclose(dataspace);
+	(void)status;
+}
+
+void ExtensibleDataSet_Extend_integer(ExtensibleDataSet id, const double *data, hsize_t dims[2])
+{
+	// On étend l'espace alloué au dataset :
+	if( id->incremente || id->size[1] < dims[1] )
+		id->size[1]     += dims[1];
+	else
+		id->incremente = true;
+	herr_t status    = H5Dextend(id->dataset, id->size);
+	// On récupère les infos sur l'espace nouvellement alloué :
+	hid_t  filespace = H5Dget_space(id->dataset);
+	// On sélectionne la zone où l'on va écrire les nouvelles données :
+	status           = H5Sselect_hyperslab(filespace, H5S_SELECT_SET, id->offset, NULL, dims, NULL);
+	// On crée le dataspace pour les nouvelles données :
+	hid_t  dataspace = H5Screate_simple(2, dims, NULL);
+
+	// On écrit les données :
+	status           = H5Dwrite(id->dataset, H5T_NATIVE_INT, dataspace, filespace, H5P_DEFAULT, data);
+
+	// On incrémente l'offset :
+	//id->offset[0]    += dims[0];
+	id->offset[1]   += dims[1];
+
+	// On libère la mémoire :
+	H5Sclose(filespace);
+	H5Sclose(dataspace);
+	(void)status;
+}
+
+void ExtensibleDataSet_Close(ExtensibleDataSet id)
+{
+	H5Dclose(id->dataset);
+}
 
 class ArgsChain
 {
@@ -44,6 +184,18 @@ class ArgsChain
 		}
 };
 
+			// std::cout << opts.G << std::endl;
+			// std::cout << opts.opening << std::endl;
+			// std::cout << opts.softening << std::endl;
+			// std::cout << opts.pos_conv << std::endl;
+			// std::cout << opts.vit_conv << std::endl;
+			// std::cout << opts.rayon << std::endl;
+			// std::cout << opts.norme << std::endl;
+
+			// std::cout << opts.type << std::endl;
+			// std::cout << opts.leaf << std::endl;
+			// std::cout << opts.nb_bin << std::endl;
+
 
 class Application {
 	public:
@@ -51,9 +203,10 @@ class Application {
 			const int argc,
 			const char **argv
 		) : logger(std::cout),
-		    reader(),
+		    reader(NULL),
+		    writer(NULL),
 		    NbPart(-1),
-		    swap(NULL),
+		    // swap(NULL),
 		    file(NULL)
 		{
 			cli::ArgumentParser<ArgsChain> parser(argc, argv);
@@ -77,43 +230,36 @@ class Application {
 
 			cli::Config cfg_args = parser.Parse();
 
-			std::cout << "Test: " << cfg_args["config"].as<std::string>() << " == " << cfg_args["leaf"].as<int>() << std::endl;
-
 			cfg::ConfigReader config(INSTALL_DIR"/share/verif/config.yaml");
-			// config.Add(cfg_args["config"].as<std::string>());
 			YAML::Node tmp = YAML::convert<cli::Config>::encode(cfg_args);
 			config.Add(tmp);
 			this->opts = config.Get();
 
-			std::cout << opts.G << std::endl;
-			std::cout << opts.opening << std::endl;
-			std::cout << opts.softening << std::endl;
-			std::cout << opts.pos_conv << std::endl;
-			std::cout << opts.vit_conv << std::endl;
-			std::cout << opts.rayon << std::endl;
-			std::cout << opts.norme << std::endl;
+			this->opts.infile = parser.GetUnused();
 
-			std::cout << opts.type << std::endl;
-			std::cout << opts.leaf << std::endl;
-			std::cout << opts.nb_bin << std::endl;
+			this->AddReader(opts.name);
 
-			this->init();
+			// this->init();
 		}
 
 		~Application(void)
 		{
-			for(size_t i = 0, size = this->stats.size(); i < size; i++)
-				delete this->stats[i];
-			if( this->file != NULL )
-				delete file;
+			this->clean();
 		}
 
-		void init(void)
+		void clean(void)
 		{
-			this->AddReader(opts.name);
+			for(size_t i = 0, size = this->stats.size(); i < size; i++)
+				delete this->stats[i];
+			this->stats.clear();
+			if( this->file != NULL )
+				delete this->file;
+			this->file = NULL;
+		}
 
-			this->file	 = reader.GetInstance(opts.name, "Toto")(opts.infile[0].c_str());
-			this->swap       = reader.GetSwap(opts.name, "Swap");
+		void init(std::string& file)
+		{
+			this->file	 = this->Create(file.c_str());
 			this->file->Read();
 			this->particules = this->file->GetParticules();
 			this->NbPart     = this->file->NbPart();
@@ -163,9 +309,10 @@ class Application {
 			);
 		}
 
-		void AddReader(const std::string name)
+		void AddReader(const std::string& name)
 		{
-			reader.Add(name);
+			this->reader = new plugins::Plugins(name);
+			this->Create = reader->GetFunction<io::reader::NewReader>("Create");
 		}
 
 		void SortByR(void)
@@ -190,82 +337,106 @@ class Application {
 
 		int main(void)
 		{
-			return 0;
-			std::cout << opts.G << std::endl;
-			std::cout << opts.opening << std::endl;
-			std::cout << opts.softening << std::endl;
-			std::cout << opts.pos_conv << std::endl;
-			std::cout << opts.vit_conv << std::endl;
-			std::cout << opts.rayon << std::endl;
-			std::cout << opts.norme << std::endl;
+			hid_t	grp,
+				out_file = H5Fcreate(
+						opts.outfile.c_str(),
+						H5F_ACC_TRUNC,
+						H5P_DEFAULT,
+						H5P_DEFAULT
+					);
+			hsize_t size[2] = {1, 1};
+			double val;
+			ExtensibleDataSet eds;
 
-			std::cout << opts.type << std::endl;
-			std::cout << opts.leaf << std::endl;
-			std::cout << opts.verbosity << std::endl;
-			std::cout << opts.nb_bin << std::endl;
-
-			std::cout << opts.logfile << std::endl;
-			std::cout << opts.outfile << std::endl;
-			std::cout << opts.name << std::endl;
-			for(unsigned i=0; i<opts.infile.size(); i++)
-				std::cout << opts.infile[0] << std::endl;
-
-			return 0;
-
-			this->SortByR();
-			Physics::DensityCenter dc(
-					this->particules,
-					this->NbPart,
-					this->opts.leaf,
-					{0., 0., 0.},
-					2.*Utils::rayon(&this->particules[this->NbPart-1]),
-					15
-			);
-			std::clock_t startTime = std::clock();
-			io::types::ParticuleData center = dc.CalculAll_NewInit();
-			std::cout << "Density center calculation time: " << double( std::clock() - startTime ) / (double)CLOCKS_PER_SEC<< " seconds." << std::endl;
-
-			for(int i = 0; i < this->NbPart; i++)
+			for(auto file: opts.infile)
 			{
-				for(int j = 0; j<3; j++)
+				grp = H5Gcreate(
+						out_file,
+						("/" + fs::basename(file)).c_str(),
+						H5P_DEFAULT,
+						H5P_DEFAULT,
+						H5P_DEFAULT
+				);
+				eds = CreateExtensibleDS(
+						out_file,
+						("/" + fs::basename(file) + "/timeparam").c_str(),
+						size
+				);
+
+				this->init(file);
+
+				val = this->file->Time();
+				ExtensibleDataSet_Extend(eds, &val, size);
+
+				this->SortByR();
+				Physics::DensityCenter dc(
+						this->particules,
+						this->NbPart,
+						this->opts.leaf,
+						{0., 0., 0.},
+						2.*Utils::rayon(&this->particules[this->NbPart-1]),
+						15
+				);
+				std::clock_t startTime = std::clock();
+				io::types::ParticuleData center = dc.CalculAll_NewInit();
+				std::cout << "Density center calculation time: " << double( std::clock() - startTime ) / (double)CLOCKS_PER_SEC<< " seconds." << std::endl;
+
+				for(int i = 0; i < this->NbPart; i++)
 				{
-					this->particules[i].Pos[j] -= center.Pos[j];
-					this->particules[i].Vit[j] -= center.Vit[j];
+					for(int j = 0; j<3; j++)
+					{
+						this->particules[i].Pos[j] -= center.Pos[j];
+						this->particules[i].Vit[j] -= center.Vit[j];
+					}
 				}
+
+				this->SortByR();
+				Calc::Energie pot(
+						this->particules,
+						this->NbPart,
+						15,
+						{0., 0., 0.},
+						2.*Utils::rayon(&this->particules[this->NbPart-1]),
+						0.5,
+						opts.G
+				);
+				startTime = std::clock();
+				pot.CalculAll();
+				std::cout << "Potential calculation time: " << double( std::clock() - startTime ) / (double)CLOCKS_PER_SEC<< " seconds." << std::endl;
+
+				val = pot.GetVirial();
+				ExtensibleDataSet_Extend(eds, &val, size);
+
+				val = pot.GetEc();
+				ExtensibleDataSet_Extend(eds, &val, size);
+
+				val = pot.GetEp();
+				ExtensibleDataSet_Extend(eds, &val, size);
+
+				std::cout << pot.GetVirial() << std::endl;
+				std::cout << pot.GetEc() << "\t" << pot.GetEp() << std::endl;
+
+				this->SortByR();
+				for(size_t i = 0, size = this->stats.size(); i < size; i++)
+					this->stats[i]->Calcul();
+
+				this->clean();
 			}
-
-			this->SortByR();
-			Calc::Energie pot(
-					this->particules,
-					this->NbPart,
-					15,
-					{0., 0., 0.},
-					2.*Utils::rayon(&this->particules[this->NbPart-1]),
-					0.5,
-					opts.G
-			);
-			startTime = std::clock();
-			pot.CalculAll();
-			std::cout << "Potential calculation time: " << double( std::clock() - startTime ) / (double)CLOCKS_PER_SEC<< " seconds." << std::endl;
-
-			std::cout << pot.GetVirial() << std::endl;
-			std::cout << pot.GetEc() << "\t" << pot.GetEp() << std::endl;
-
-			this->SortByR();
-			for(size_t i = 0, size = this->stats.size(); i < size; i++)
-				this->stats[i]->Calcul();
 
 			return 0;
 		}
 
 	private:
 		logging::Logger			 logger;
-		io::reader::Reader		 reader;
+		// io::reader::Reader		 reader;
+		plugins::Plugins		*reader;
+		plugins::Plugins		*writer;
+		io::reader::NewReader		*Create;
 		cfg::Config			 opts;
 		//cli::ArgsParser			 opts;
 		io::types::Particules		 particules;
 		int				 NbPart;
-		Tree::SwapFunc			*swap;
+		// Tree::SwapFunc			*swap;
 		io::reader::PlugReader		*file;
 		//io::reader::FreeFunc		*free;
 		std::vector<Stats::Histogram*>	 stats;
