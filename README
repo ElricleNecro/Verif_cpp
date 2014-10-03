@@ -1,3 +1,6 @@
+This is a rewriting of my original pipeline in C++. This is still Work In Progress, and not yet really usable.
+
+
 Plug-ins
 ########
 to compile the gadget reader:
