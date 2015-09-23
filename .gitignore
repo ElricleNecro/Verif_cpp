@@ -16,7 +16,6 @@ physics.cpp
 test/
 testv2/
 tree_physics.cpp
-types.hpp
 Plugins/Gadget.so
 test_opt/*
 test.yaml
