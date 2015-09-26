@@ -18,8 +18,6 @@
 
 namespace fs = boost::filesystem;
 
-int comp(const void *a, const void *b);
-
 typedef struct _ExtensibleDataSet {
 	hsize_t size[2], offset[2];
 	hid_t dataset, file, grp;
@@ -155,6 +153,8 @@ void ExtensibleDataSet_Close(ExtensibleDataSet id)
 	H5Dclose(id->dataset);
 }
 
+int comp(const void *a, const void *b);
+
 class ArgsChain
 {
 	private:
@@ -183,19 +183,6 @@ class ArgsChain
 			return this->corres[var];
 		}
 };
-
-			// std::cout << opts.G << std::endl;
-			// std::cout << opts.opening << std::endl;
-			// std::cout << opts.softening << std::endl;
-			// std::cout << opts.pos_conv << std::endl;
-			// std::cout << opts.vit_conv << std::endl;
-			// std::cout << opts.rayon << std::endl;
-			// std::cout << opts.norme << std::endl;
-
-			// std::cout << opts.type << std::endl;
-			// std::cout << opts.leaf << std::endl;
-			// std::cout << opts.nb_bin << std::endl;
-
 
 class Application {
 	public:
