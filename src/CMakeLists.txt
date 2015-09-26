@@ -24,6 +24,7 @@ file(
 	io/reader.cpp
 	io/reader_interface.cpp
 	io/types.cpp
+	io/hdf5.cpp
 	io/writer.cpp
 	io/writer_interface.cpp
 	plugins/*.cpp
@@ -40,6 +41,7 @@ file(
 	include/io/reader.hpp
 	include/io/reader_interface.hpp
 	include/io/types.hpp
+	include/io/hdf5.hpp
 	include/io/writer.hpp
 	include/io/writer_interface.hpp
 )

@@ -21,9 +21,9 @@ add_library(
 
 target_link_libraries(
 	verif_io
-	hdf5_cpp
 	hdf5
 )
+	# hdf5_cpp
 
 install(TARGETS verif_io DESTINATION lib)
 #install(FILES ${meg_include} DESTINATION include)
