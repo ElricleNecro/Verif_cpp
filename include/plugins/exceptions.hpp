@@ -13,9 +13,12 @@ namespace plugins {
 		public:
 			PlugInNotFound(const char *msg);
 			PlugInNotFound(std::string &msg);
+			PlugInNotFound(const PlugInNotFound &pinf);
 			virtual ~PlugInNotFound(void) noexcept;
 
 			virtual const char* what(void) const noexcept;
+
+			PlugInNotFound& operator=(const PlugInNotFound &pinf);
 
 		private:
 			std::string error;
@@ -25,9 +28,12 @@ namespace plugins {
 		public:
 			PlugInWrongAPI(const char *msg);
 			PlugInWrongAPI(std::string &msg);
+			PlugInWrongAPI(const PlugInWrongAPI &pinf);
 			virtual ~PlugInWrongAPI(void) noexcept;
 
 			virtual const char* what(void) const noexcept;
+
+			PlugInWrongAPI& operator=(const PlugInWrongAPI &piwa);
 
 		private:
 			std::string error;
@@ -37,9 +43,12 @@ namespace plugins {
 		public:
 			PlugInError(const char *msg);
 			PlugInError(std::string &msg);
+			PlugInError(const PlugInError &pinf);
 			virtual ~PlugInError(void) noexcept;
 
 			virtual const char* what(void) const noexcept;
+
+			PlugInError& operator=(const PlugInError &pie);
 
 		private:
 			std::string error;
