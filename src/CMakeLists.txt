@@ -44,6 +44,12 @@ file(
 	include/io/writer_interface.hpp
 )
 
+add_subdirectory(io)
+add_subdirectory(log)
+add_subdirectory(tree)
+add_subdirectory(physics)
+add_subdirectory(plugins)
+
 ############
 # Exécutable à construire :
 ###########################
