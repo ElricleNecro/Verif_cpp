@@ -1,28 +1,28 @@
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-####################
-# Liste des fichiers sources :
-##############################
 file(
 	GLOB
-	histogram_files
-	../utils.cpp
-	histogramme.cpp
-	include/utils.hpp
-	include/physics/histogramme.hpp
+	physics_files
+	*.cpp
 )
 
-#install(TARGETS verif++ DESTINATION bin)
+file(
+	GLOB
+	physics_include
+	*.cpp
+)
 
-############
-# Exécutable à construire :
-###########################
-add_executable(
-	histogram
-	${histogram_files}
+add_library(
+	verif_physics
+	SHARED
+	${physics_files}
+	${physics_include}
 )
 
 target_link_libraries(
+	verif_physics
 )
 
-install(TARGETS verif++ DESTINATION bin)
+install(TARGETS verif_physics DESTINATION lib)
+install(FILES ${physics_include} DESTINATION include/verif)
+

@@ -14,7 +14,7 @@ file(
 
 add_library(
 	verif_io
-	STATIC
+	SHARED
 	${io_files}
 	${io_include}
 )
@@ -26,5 +26,5 @@ target_link_libraries(
 )
 
 install(TARGETS verif_io DESTINATION lib)
-#install(FILES ${meg_include} DESTINATION include)
+install(FILES ${io_include} DESTINATION include/verif)
 

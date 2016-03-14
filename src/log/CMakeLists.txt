@@ -14,16 +14,15 @@ file(
 
 add_library(
 	verif_log
-	STATIC
+	SHARED
 	${log_files}
 	${log_include}
 )
 
 target_link_libraries(
 	verif_log
-	hdf5_cpp
-	hdf5
 )
 
 install(TARGETS verif_log DESTINATION lib)
+install(FILES ${log_include} DESTINATION include/verif)
 
