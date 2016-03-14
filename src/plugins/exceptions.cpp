@@ -1,4 +1,5 @@
 #include "plugins/exceptions.hpp"
+
 namespace plugins {
 	//--------------------------------------------------------------------------------
 	// PlugInNotFound class
